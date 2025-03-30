@@ -16,7 +16,7 @@ namespace MyApp
                 return false;
             }
 
-            if (!customer.EmailAddress.Contains("@") && !customer.EmailAddress.Contains("."))
+            if (!new EmailAddressAttribute().IsValid(customer.EmailAddress))
             {
                 return false;
             }
