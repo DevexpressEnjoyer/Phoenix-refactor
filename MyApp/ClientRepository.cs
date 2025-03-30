@@ -36,6 +36,8 @@ namespace MyApp
                 }
             }
 
+            if (client == null) throw new System.Exception("Client not found in repository.");
+
             return client;
         }
     }
