@@ -7,8 +7,18 @@ using System.Threading.Tasks;
 
 namespace MyApp
 {
-    public class CustomerValidator
+    public interface ICustomerValidator
     {
+        bool Validate(Customer customer, Client client);
+    }
+    public class CustomerValidator : ICustomerValidator
+    {
+        private readonly ICreditAssignerSelector creditAssignerSelector;
+
+        public CustomerValidator(ICreditAssignerSelector _creditAssignerSelector)
+        {
+            creditAssignerSelector = _creditAssignerSelector;
+        }
         public bool Validate(Customer customer, Client client)
         {
             if (string.IsNullOrEmpty(customer.Firstname) || string.IsNullOrEmpty(customer.Surname))
@@ -31,32 +41,8 @@ namespace MyApp
                 return false;
             }
 
-            if (client.Name == "VIP")
-            {
-                // Skip credit check
-                customer.HasCreditLimit = false;
-            }
-            else if (client.Name == "Important")
-            {
-                // Do credit check and double credit limit
-                customer.HasCreditLimit = true;
-                using (var userService = new CustomerServiceClient())
-                {
-                    var creditLimit = userService.GetLimit(customer.Firstname, customer.Surname, customer.DateOfBirth);
-                    creditLimit = creditLimit * 3;
-                    customer.CreditLimit = creditLimit;
-                }
-            }
-            else
-            {
-                // Do credit check
-                customer.HasCreditLimit = true;
-                using (var userService = new CustomerServiceClient())
-                {
-                    var creditLimit = userService.GetLimit(customer.Firstname, customer.Surname, customer.DateOfBirth);
-                    customer.CreditLimit = creditLimit;
-                }
-            }
+            var assigmentType = creditAssignerSelector.GetAssignType(client);
+            assigmentType.Assign(customer);
 
             if (customer.HasCreditLimit && customer.CreditLimit < 700)
             {
