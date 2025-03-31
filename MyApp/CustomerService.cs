@@ -6,9 +6,8 @@ namespace MyApp
 {
     public class CustomerService
     {
-        private readonly CustomerValidator validator;
-        private readonly ClientRepository clientRepository;
-
+        private readonly ICustomerValidator validator;
+        private readonly IClientRepository clientRepository;
 
         //dependency injection
         public CustomerService(CustomerValidator _validator, ClientRepository _clientRepository)
@@ -19,9 +18,6 @@ namespace MyApp
 
         public bool AddCustomer(string furname, string surname, string email, DateTime dateOfBirth, int clientId)
         {
-
-            var clientRepository = new ClientRepository();
-
             //What if client with selected Id does not exist? In long term I'd suggest implementing TryGetById
             //For now, GetById will throw exception with proper error message (proper way is also to create a new exception class - ClientNotFoundException)
             var client = clientRepository.GetById(clientId);
